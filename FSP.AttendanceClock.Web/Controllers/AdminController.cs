@@ -321,7 +321,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         /// Sección: Reporte Horario (panel administrativo)
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> ReporteHorario(int? userId, DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> HoursReport(int? userId, DateTime? startDate, DateTime? endDate)
         {
             // Preparar lista de usuarios para selector
             ViewBag.Users = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(await _context.Users.OrderBy(u => u.Username).ToListAsync(), "Id", "Username");
@@ -381,7 +381,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         /// Exporta el reporte horario a Excel.
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> ExportReporteHorarioToExcel(int? userId, DateTime? startDate, DateTime? endDate)
+        public async Task<IActionResult> ExportHoursReport(int? userId, DateTime? startDate, DateTime? endDate)
         {
             if (!userId.HasValue) return BadRequest("Se requiere seleccionar un usuario");
 
@@ -444,7 +444,7 @@ namespace FSP.AttendanceClock.Web.Controllers
                 {
                     workbook.SaveAs(stream);
                     var content = stream.ToArray();
-                    var fileName = $"ReporteHorario_{user.Username}_{DateTime.Now:yyyyMMdd}.xlsx";
+                    var fileName = $"HoursReport_{user.Username}_{DateTime.Now:yyyyMMdd}.xlsx";
                     return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
                 }
             }
