@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "Reporte Horario";
+}
+
+<h2>Reporte Horario</h2>
+
+<form method="get" asp-action="ReporteHorario" class="row g-3">
+    <div class="col-md-4">
+        <label class="form-label">Usuario</label>
+        <select name="userId" class="form-select">
+            <option value="">Selecciona un usuario</option>
+            @foreach (var u in (Microsoft.AspNetCore.Mvc.Rendering.SelectList)ViewBag.Users)
+            {
+                @if (u.Value == ViewBag.SelectedUserId?.ToString())
+                {
+                    <option value="@u.Value" selected>@u.Text</option>
+                }
+                else
+                {
+                    <option value="@u.Value">@u.Text</option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Desde</label>
+        <input type="date" name="startDate" class="form-control" value="@ViewBag.StartDate" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Hasta</label>
+        <input type="date" name="endDate" class="form-control" value="@ViewBag.EndDate" />
+    </div>
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary">Generar</button>
+    </div>
+</form>
+
+<hr />
+
+@if (ViewBag.AttendanceRecords != null && ViewBag.AttendanceRecords.Count > 0)
+{
+    <div class="mb-3">
+        <a asp-action="ExportReporteHorarioToExcel" asp-route-userId="@ViewBag.SelectedUserId" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="btn btn-success">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Exportar a Excel
+        </a>
+    </div>
+
+    <h3>Historial - @ViewBag.Username</h3>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card card-body bg-light">
+                <strong>Horas ordinarias:</strong> @String.Format("{0:0.##}", (double?)ViewBag.TotalOrdinaryHours ?? 0) h
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card card-body bg-light">
+                <strong>Horas extra:</strong> @String.Format("{0:0.##}", (double?)ViewBag.TotalExtraHours ?? 0) h
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora Entrada</th>
+                <th>Hora Salida</th>
+                <th>Horas Trabajadas</th>
+                <th>Horas Ordinarias (&lt;= 8h)</th>
+                <th>Horas Extra</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in ViewBag.AttendanceRecords)
+            {
+                <tr>
+                    <td>@record.Date</td>
+                    <td>@record.CheckInTime</td>
+                    <td>@record.CheckOutTime</td>
+                    <td>@String.Format("{0:0.##}", ((TimeSpan)record.WorkedHours).TotalHours)</td>
+                    <td>@String.Format("{0:0.##}", ((TimeSpan)record.OrdinaryHours).TotalHours)</td>
+                    <td>@String.Format("{0:0.##}", ((TimeSpan)record.ExtraHours).TotalHours)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ViewBag.SelectedUserId != null && (ViewBag.AttendanceRecords == null || ViewBag.AttendanceRecords.Count == 0))
+{
+    <p>No hay registros para el usuario seleccionado en el rango de fechas.</p>
+}

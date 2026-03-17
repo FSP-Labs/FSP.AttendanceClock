@@ -1,0 +1,15 @@
+## .NET build artifacts
+bin/
+obj/
+*.user
+.vs/
+
+## appsettings con credenciales (ver appsettings.Example.json)
+**/appsettings.json
+**/appsettings.Development.json
+
+## JetBrains Rider
+.idea/
+
+## macOS
+.DS_Store

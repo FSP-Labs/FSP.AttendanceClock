@@ -1,0 +1,85 @@
+@model IEnumerable<FSP.AttendanceClock.Core.Entities.Attendance>
+
+@using FSP.AttendanceClock.Core.Entities
+
+@{
+    ViewData["Title"] = "Mi Panel";
+}
+
+<div class="dashboard-container">
+    @await Html.PartialAsync("_Notifications")
+
+    <div class="action-card mb-5 text-center p-5 glass-effect rounded">
+        <h1 class="mb-4">Registro de Fichaje</h1>
+        <p class="text-muted mb-4">Registra tu hora de entrada o salida actual.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <form asp-action="CheckIn" method="post">
+                <button type="submit" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-sm">
+                    <i class="bi bi-box-arrow-in-right"></i> ENTRADA
+                </button>
+            </form>
+            <form asp-action="CheckOut" method="post">
+                <button type="submit" class="btn btn-danger btn-lg px-5 py-3 fw-bold shadow-sm">
+                    <i class="bi bi-box-arrow-left"></i> SALIDA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <h3 class="mb-3 border-bottom pb-2">Historial de Hoy</h3>
+        <div class="table-responsive glass-effect p-3 rounded">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Hora</th>
+                        <th>Tipo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.Timestamp.ToLocalTime().ToShortTimeString()</td>
+                            <td>
+                                @if (item.Type == AttendanceType.CheckIn)
+                                {
+                                    <span class="badge bg-success rounded-pill px-3">ENTRADA</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger rounded-pill px-3">SALIDA</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil"></i> Editar
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @if (!Model.Any())
+            {
+                <p class="text-center text-muted mt-3">No hay registros para hoy.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('form[action*="CheckIn"], form[action*="CheckOut"]')
+            .forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    var btn = this.querySelector('button[type="submit"]');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.textContent = 'Procesando...';
+                    }
+                });
+            });
+    </script>
+}

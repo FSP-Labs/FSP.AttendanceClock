@@ -1,0 +1,60 @@
+@model IEnumerable<FSP.AttendanceClock.Core.Entities.Attendance>
+
+@{
+    ViewData["Title"] = "Administración - Historial";
+}
+
+<div class="dashboard-container" style="max-width: 1000px;">
+    <div class="header glass-effect mb-4 p-4 rounded d-flex justify-content-between align-items-center">
+        <div>
+            <h1>Panel de Administración</h1>
+            <p class="text-muted">Historial completo de fichajes</p>
+        </div>
+        <div>
+            <a asp-action="AuditLog" class="btn btn-info me-2 text-white"><i class="bi bi-shield-lock"></i> Auditoría</a>
+            <a asp-action="ReporteHorario" class="btn btn-success me-2"><i class="bi bi-clock-history"></i> Reporte Horario</a>
+            <a asp-action="ExportToExcel" class="btn btn-warning me-2"><i class="bi bi-file-earmark-spreadsheet"></i> Exportar Excel</a>
+            <a asp-action="Users" class="btn btn-primary">Gestionar Usuarios</a>
+        </div>
+    </div>
+
+    <div class="history-section glass-effect p-4 rounded">
+        <h3>Registro General</h3>
+        <table class="table table-hover mt-3">
+            <thead>
+                <tr>
+                    <th>Empleado</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td><span class="fw-bold">@item.User.Username</span></td>
+                        <td>@item.Timestamp.ToLocalTime().ToShortDateString()</td>
+                        <td>@item.Timestamp.ToLocalTime().ToShortTimeString()</td>
+                        <td>
+                            @if (item.Type == FSP.AttendanceClock.Core.Entities.AttendanceType.CheckIn)
+                            {
+                                <span class="badge bg-success">Entrada</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Salida</span>
+                            }
+                        </td>
+                        <td>
+                             <a asp-controller="Attendance" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+@model IEnumerable<FSP.AttendanceClock.Core.Entities.User>
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+<div class="dashboard-container" style="max-width: 1000px;">
+    <div class="header glass-effect mb-4 p-4 rounded d-flex justify-content-between align-items-center">
+        <div>
+            <h1>Usuarios</h1>
+            <p class="text-muted">Gestionar empleados y administradores</p>
+        </div>
+        <div>
+            <a asp-action="CreateUser" class="btn btn-success">Nuevo Usuario</a>
+            <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+        </div>
+    </div>
+
+    <div class="glass-effect p-4 rounded">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.Username</td>
+                        <td>@user.Role</td>
+                        <td>
+                            <form asp-action="DeleteUser" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm" data-confirm="¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.">Eliminar</button>
+                            </form>
+                            <a asp-action="ResetPassword" asp-route-id="@user.Id" class="btn btn-warning btn-sm ms-1">Reset Password</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('[data-confirm]').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                if (!confirm(this.dataset.confirm)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

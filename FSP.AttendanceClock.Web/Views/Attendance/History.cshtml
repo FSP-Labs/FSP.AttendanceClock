@@ -1,0 +1,69 @@
+@model IEnumerable<FSP.AttendanceClock.Core.Entities.Attendance
+>
+
+@using FSP.AttendanceClock.Core.Entities
+
+@{
+    ViewData["Title"] = "Historial Completo";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Historial de Fichajes</h2>
+        <a asp-action="Index" class="btn btn-secondary">Volver al Panel</a>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-auto">
+            <label class="form-label">Desde</label>
+            <input type="datetime-local" name="from" class="form-control" value="@(ViewData["From"] ?? "")" />
+        </div>
+        <div class="col-auto">
+            <label class="form-label">Hasta</label>
+            <input type="datetime-local" name="to" class="form-control" value="@(ViewData["To"] ?? "")" />
+        </div>
+        <div class="col-auto align-self-end">
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a asp-action="History" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </form>
+
+    <div class="table-responsive glass-effect p-3 rounded">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Fecha y Hora</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.Timestamp.ToLocalTime().ToString("g")</td>
+                        <td>
+                            @if (item.Type == AttendanceType.CheckIn)
+                            {
+                                <span class="badge bg-success rounded-pill px-3">ENTRADA</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger rounded-pill px-3">SALIDA</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (!Model.Any())
+        {
+            <p class="text-center text-muted mt-3">No hay registros para los filtros seleccionados.</p>
+        }
+    </div>
+</div>
