@@ -33,7 +33,7 @@
                     var rowClass = log.Action.Contains("CheckIn") || log.Action.Contains("Entrada") ? "table-success"
                         : log.Action.Contains("CheckOut") || log.Action.Contains("Salida") ? "table-primary"
                         : log.Action.Contains("Edit") || log.Action.Contains("Edicion") || log.Action.Contains("EdicionFichaje") ? "table-warning"
-                        : log.Action.Contains("User") || log.Action.Contains("Usuario") || log.Action.Contains("Contrasena") || log.Action.Contains("Contrase") ? "table-danger"
+                        : log.Action.Contains("User") || log.Action.Contains("Usuario") || log.Action.Contains("Password") || log.Action.Contains("Contrasena") || log.Action.Contains("Contrase") ? "table-danger"
                         : "";
                     var spanishZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
                     var spanishTime = TimeZoneInfo.ConvertTimeFromUtc(log.Timestamp, spanishZone);
@@ -44,7 +44,7 @@
                             @if(log.Action.Contains("CheckIn") || log.Action.Contains("Entrada")) { <span class="badge bg-success">Check In</span> }
                             else if(log.Action.Contains("CheckOut") || log.Action.Contains("Salida")) { <span class="badge bg-danger">Check Out</span> }
                             else if(log.Action.Contains("Edit") || log.Action.Contains("Edicion") || log.Action.Contains("EdicionFichaje") ) { <span class="badge bg-warning text-dark">Edit</span> }
-                            else if(log.Action.Contains("User") || log.Action.Contains("Usuario")) { <span class="badge bg-info text-dark">User</span> }
+                            else if(log.Action.Contains("User") || log.Action.Contains("Usuario") || log.Action.Contains("Password") || log.Action.Contains("Contrasena") || log.Action.Contains("Contrase")) { <span class="badge bg-info text-dark">User</span> }
                             else { <span class="badge bg-secondary">@log.Action</span> }
                         </td>
                         <td>@log.Details</td>

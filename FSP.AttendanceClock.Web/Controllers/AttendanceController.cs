@@ -106,7 +106,7 @@ namespace FSP.AttendanceClock.Web.Controllers
             var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
             if (userAgent.Length > 500) userAgent = userAgent[..500];
-            await _auditService.LogAsync(userId, username, "Entrada", $"Usuario fichó entrada a las {attendance.Timestamp}", ip, userAgent);
+            await _auditService.LogAsync(userId, username, "CheckIn", $"User checked in at {attendance.Timestamp.ToLocalTime():HH:mm}", ip, userAgent);
             TempData["Success"] = "Check-in recorded successfully.";
 
             return RedirectToAction(nameof(Index));
@@ -147,7 +147,7 @@ namespace FSP.AttendanceClock.Web.Controllers
             var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
             if (userAgent.Length > 500) userAgent = userAgent[..500];
-            await _auditService.LogAsync(userId, username, "Salida", $"Usuario fichó salida a las {attendance.Timestamp}", ip, userAgent);
+            await _auditService.LogAsync(userId, username, "CheckOut", $"User checked out at {attendance.Timestamp.ToLocalTime():HH:mm}", ip, userAgent);
 
             TempData["Success"] = "Check-out recorded successfully.";
 
@@ -220,12 +220,12 @@ namespace FSP.AttendanceClock.Web.Controllers
             var oldTimeSpanish = TimeZoneInfo.ConvertTimeFromUtc(audit.OldTimestamp, spanishZone);
             var newTimeSpanish = TimeZoneInfo.ConvertTimeFromUtc(audit.NewTimestamp, spanishZone);
             
-            string logDetail = $"Editado por: {username} | Usuario Afectado: {affectedUser} | Registro {attendance.Id} cambiado de {oldTimeSpanish:G} a {newTimeSpanish:G}. Motivo: {reason}";
+            string logDetail = $"Edited by: {username} | Affected user: {affectedUser} | Record {attendance.Id} changed from {oldTimeSpanish:G} to {newTimeSpanish:G}. Reason: {reason}";
 
             var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
             if (userAgent.Length > 500) userAgent = userAgent[..500];
-            await _auditService.LogAsync(userId, username, "EdicionFichaje", logDetail, ip, userAgent);
+            await _auditService.LogAsync(userId, username, "EditRecord", logDetail, ip, userAgent);
 
             TempData["Success"] = "Attendance record updated and audited successfully.";
             

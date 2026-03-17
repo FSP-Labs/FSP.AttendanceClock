@@ -39,7 +39,7 @@ namespace FSP.AttendanceClock.Web.Middleware
 
             var response = new ErrorResponse
             {
-                Message = "Ocurrió un error en el servidor.",
+                Message = "An error occurred on the server.",
                 StatusCode = context.Response.StatusCode
             };
 
@@ -47,22 +47,22 @@ namespace FSP.AttendanceClock.Web.Middleware
             {
                 case ArgumentNullException:
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    response.Message = "Solicitud inválida.";
+                    response.Message = "Invalid request.";
                     break;
 
                 case UnauthorizedAccessException:
                     context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    response.Message = "No autorizado.";
+                    response.Message = "Unauthorized.";
                     break;
 
                 case KeyNotFoundException:
                     context.Response.StatusCode = StatusCodes.Status404NotFound;
-                    response.Message = "Recurso no encontrado.";
+                    response.Message = "Resource not found.";
                     break;
 
                 default:
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    response.Message = "Ocurrió un error interno del servidor. Por favor contacte al administrador.";
+                    response.Message = "An internal server error occurred. Please contact the administrator.";
                     break;
             }
 

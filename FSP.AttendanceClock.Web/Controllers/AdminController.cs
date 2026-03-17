@@ -117,7 +117,7 @@ namespace FSP.AttendanceClock.Web.Controllers
             var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
             if (userAgent.Length > 500) userAgent = userAgent[..500];
-            await _auditService.LogAsync(adminId, adminName, "UsuarioCreado", $"Usuario creado: {user.Username} con rol {user.Role}", ip, userAgent);
+            await _auditService.LogAsync(adminId, adminName, "UserCreated", $"User created: {user.Username} with role {user.Role}", ip, userAgent);
 
             return RedirectToAction(nameof(Users));
         }
@@ -141,7 +141,7 @@ namespace FSP.AttendanceClock.Web.Controllers
                 var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
                 var userAgent = Request.Headers["User-Agent"].ToString();
                 if (userAgent.Length > 500) userAgent = userAgent[..500];
-                await _auditService.LogAsync(adminId, adminName, "UsuarioEliminado", $"Usuario eliminado: {username}", ip, userAgent);
+                await _auditService.LogAsync(adminId, adminName, "UserDeleted", $"User deleted: {username}", ip, userAgent);
             }
             return RedirectToAction(nameof(Users));
         }
@@ -181,7 +181,7 @@ namespace FSP.AttendanceClock.Web.Controllers
             var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
             var userAgent = Request.Headers["User-Agent"].ToString();
             if (userAgent.Length > 500) userAgent = userAgent[..500];
-            await _auditService.LogAsync(adminId, adminName, "ContrasenaRestablecida", $"Contraseña restablecida para usuario: {user.Username}", ip, userAgent);
+            await _auditService.LogAsync(adminId, adminName, "PasswordReset", $"Password reset for user: {user.Username}", ip, userAgent);
             
             TempData["Success"] = $"Password for {user.Username} has been reset successfully.";
 
@@ -228,7 +228,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             using (var workbook = new ClosedXML.Excel.XLWorkbook())
             {
-                var worksheet = workbook.Worksheets.Add("Fichajes");
+                var worksheet = workbook.Worksheets.Add("Attendance");
                 var currentRow = 1;
 
                 // Header
@@ -400,7 +400,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             using (var workbook = new ClosedXML.Excel.XLWorkbook())
             {
-                var worksheet = workbook.Worksheets.Add("Reporte Horario");
+                var worksheet = workbook.Worksheets.Add("Hours Report");
                 var row = 1;
 
                 // Header
