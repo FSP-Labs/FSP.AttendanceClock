@@ -1,44 +1,44 @@
 @model FSP.AttendanceClock.Core.Entities.User
 
 @{
-    ViewData["Title"] = "Crear Usuario";
+    ViewData["Title"] = "Create User";
 }
 
 <div class="card glass-effect" style="max-width: 600px; margin: auto;">
     <div class="card-header bg-transparent border-bottom-0 pt-4 px-4">
-        <h2>Crear Nuevo Usuario</h2>
-        <p class="text-muted mb-0">Rellena los detalles para el nuevo empleado</p>
+        <h2>Create New User</h2>
+        <p class="text-muted mb-0">Fill in the details for the new employee</p>
     </div>
     <div class="card-body p-4">
         <form asp-action="CreateUser" method="post">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <div class="mb-3">
-                <label asp-for="Username" class="form-label">Nombre de Usuario</label>
-                <input asp-for="Username" class="form-control" placeholder="ej. juan.perez" />
+                <label asp-for="Username" class="form-label">Username</label>
+                <input asp-for="Username" class="form-control" placeholder="e.g. john.doe" />
                 <span asp-validation-for="Username" class="text-danger"></span>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Contraseña</label>
+                <label class="form-label">Password</label>
                 <input name="password" type="password" class="form-control" />
-                <small class="text-muted">Contraseña inicial para el usuario.</small>
+                <small class="text-muted">Initial password for this user.</small>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Confirmar contraseña</label>
+                <label class="form-label">Confirm password</label>
                 <input name="confirmPassword" type="password" class="form-control" required />
             </div>
 
             <div class="mb-4">
-                <label asp-for="Role" class="form-label">Rol</label>
+                <label asp-for="Role" class="form-label">Role</label>
                 <select asp-for="Role" class="form-select" asp-items="Html.GetEnumSelectList<FSP.AttendanceClock.Core.Entities.UserRole>()"></select>
                 <span asp-validation-for="Role" class="text-danger"></span>
             </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a asp-action="Users" class="btn btn-outline-secondary me-md-2">Cancelar</a>
-                <button type="submit" class="btn btn-success px-4">Crear Usuario</button>
+                <a asp-action="Users" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-success px-4">Create User</button>
             </div>
         </form>
     </div>
