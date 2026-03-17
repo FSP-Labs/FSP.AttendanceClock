@@ -4,25 +4,66 @@
 
 @{
     ViewData["Title"] = "Mi Panel";
+
+    var lastRecord = Model.FirstOrDefault(); // ya viene ordenado descendente
+    bool hasOpenCheckIn = lastRecord?.Type == AttendanceType.CheckIn;
+
+    // Calcular horas trabajadas hoy: sumar pares CheckIn-CheckOut
+    var orderedRecords = Model.OrderBy(a => a.Timestamp).ToList();
+    TimeSpan totalWorked = TimeSpan.Zero;
+    DateTime? openCheckIn = null;
+    foreach (var r in orderedRecords)
+    {
+        if (r.Type == AttendanceType.CheckIn) openCheckIn = r.Timestamp;
+        else if (r.Type == AttendanceType.CheckOut && openCheckIn.HasValue)
+        {
+            totalWorked += r.Timestamp - openCheckIn.Value;
+            openCheckIn = null;
+        }
+    }
 }
 
 <div class="dashboard-container">
     @await Html.PartialAsync("_Notifications")
 
     <div class="action-card mb-5 text-center p-5 glass-effect rounded">
+        <div id="reloj-actual" class="display-4 fw-bold text-center mb-3" style="font-variant-numeric: tabular-nums; letter-spacing: 2px;"></div>
         <h1 class="mb-4">Registro de Fichaje</h1>
         <p class="text-muted mb-4">Registra tu hora de entrada o salida actual.</p>
         <div class="d-flex justify-content-center gap-3">
             <form asp-action="CheckIn" method="post">
-                <button type="submit" class="btn btn-success btn-lg px-5 py-3 fw-bold shadow-sm">
+                <button type="submit"
+                        class="btn @(hasOpenCheckIn ? "btn-outline-success" : "btn-success") btn-lg px-5 py-3 fw-bold shadow-sm"
+                        @(hasOpenCheckIn ? "disabled" : "")>
                     <i class="bi bi-box-arrow-in-right"></i> ENTRADA
                 </button>
             </form>
             <form asp-action="CheckOut" method="post">
-                <button type="submit" class="btn btn-danger btn-lg px-5 py-3 fw-bold shadow-sm">
+                <button type="submit"
+                        class="btn @(!hasOpenCheckIn ? "btn-outline-danger" : "btn-danger") btn-lg px-5 py-3 fw-bold shadow-sm"
+                        @(!hasOpenCheckIn ? "disabled" : "")>
                     <i class="bi bi-box-arrow-left"></i> SALIDA
                 </button>
             </form>
+        </div>
+
+        <div class="row text-center mb-4 mt-3">
+            <div class="col">
+                <div class="p-3 glass-effect rounded">
+                    <div class="text-muted small mb-1">Horas trabajadas hoy</div>
+                    <div class="fw-bold fs-5">
+                        @if (totalWorked.TotalMinutes > 0 || openCheckIn != null)
+                        {
+                            @($"{(int)totalWorked.TotalHours:D2}:{totalWorked.Minutes:D2}")
+                            if (openCheckIn != null) { <span class="badge bg-warning text-dark ms-2 small">En curso</span> }
+                        }
+                        else
+                        {
+                            <span class="text-muted">—</span>
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -41,7 +82,7 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td class="fw-bold">@item.Timestamp.ToLocalTime().ToShortTimeString()</td>
+                            <td class="fw-bold">@item.Timestamp.ToLocalTime().ToString("HH:mm")</td>
                             <td>
                                 @if (item.Type == AttendanceType.CheckIn)
                                 {
@@ -71,6 +112,19 @@
 
 @section Scripts {
     <script>
+        // Reloj en tiempo real
+        function actualizarReloj() {
+            var ahora = new Date();
+            var hh = String(ahora.getHours()).padStart(2, '0');
+            var mm = String(ahora.getMinutes()).padStart(2, '0');
+            var ss = String(ahora.getSeconds()).padStart(2, '0');
+            var reloj = document.getElementById('reloj-actual');
+            if (reloj) reloj.textContent = hh + ':' + mm + ':' + ss;
+        }
+        actualizarReloj();
+        setInterval(actualizarReloj, 1000);
+
+        // Anti-doble-click
         document.querySelectorAll('form[action*="CheckIn"], form[action*="CheckOut"]')
             .forEach(function (form) {
                 form.addEventListener('submit', function () {
