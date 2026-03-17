@@ -23,8 +23,8 @@
                     <th>Usuario (Actor)</th>
                     <th>Acción</th>
                     <th>Detalles</th>
-                    <th>IP</th>
-                    <th>User-Agent</th>
+                    <th class="d-none d-md-table-cell">IP</th>
+                    <th class="d-none d-lg-table-cell">User-Agent</th>
                 </tr>
             </thead>
             <tbody>
@@ -48,8 +48,8 @@
                             else { <span class="badge bg-secondary">@log.Action</span> }
                         </td>
                         <td>@log.Details</td>
-                        <td>@log.IpAddress</td>
-                        <td style="max-width:200px;">
+                        <td class="d-none d-md-table-cell">@log.IpAddress</td>
+                        <td class="d-none d-lg-table-cell" style="max-width:200px;">
                             <span title="@log.UserAgent" style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:help;">
                                 @log.UserAgent
                             </span>
