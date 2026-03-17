@@ -1,5 +1,6 @@
 using FSP.AttendanceClock.Core.Entities;
 using FSP.AttendanceClock.Core.Interfaces;
+using FSP.AttendanceClock.Core.Models;
 
 namespace FSP.AttendanceClock.Infrastructure.Services;
 

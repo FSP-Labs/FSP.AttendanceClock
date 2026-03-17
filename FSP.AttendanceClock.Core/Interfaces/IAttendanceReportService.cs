@@ -1,15 +1,7 @@
 using FSP.AttendanceClock.Core.Entities;
+using FSP.AttendanceClock.Core.Models;
 
 namespace FSP.AttendanceClock.Core.Interfaces;
-
-public record DailyHoursSummary(
-    DateTime Date,
-    DateTime? CheckInTime,
-    DateTime? CheckOutTime,
-    TimeSpan WorkedHours,
-    TimeSpan OrdinaryHours,
-    TimeSpan ExtraHours
-);
 
 public interface IAttendanceReportService
 {

@@ -339,7 +339,6 @@ namespace FSP.AttendanceClock.Web.Controllers
                 {
                     var attendances = await _context.Attendances
                         .Where(a => a.UserId == userId.Value && a.Timestamp >= start.ToUniversalTime() && a.Timestamp < end.AddDays(1).ToUniversalTime())
-                        .OrderBy(a => a.Timestamp)
                         .ToListAsync();
 
                     // Agrupar por día: primera entrada y última salida
@@ -388,7 +387,6 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             var attendances = await _context.Attendances
                 .Where(a => a.UserId == userId.Value && a.Timestamp >= start.ToUniversalTime() && a.Timestamp < end.AddDays(1).ToUniversalTime())
-                .OrderBy(a => a.Timestamp)
                 .ToListAsync();
 
             // Agrupar por día
