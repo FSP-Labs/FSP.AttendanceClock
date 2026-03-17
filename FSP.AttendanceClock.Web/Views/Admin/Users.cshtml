@@ -17,31 +17,67 @@
     </div>
 
     <div class="glass-effect p-4 rounded">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Usuario</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var user in Model)
-                {
+        @if (!Model.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-people fs-1 mb-3 d-block"></i>
+                <p>No hay usuarios creados aún.</p>
+                <a asp-action="CreateUser" class="btn btn-success btn-sm">Crear primer usuario</a>
+            </div>
+        }
+        else
+        {
+            <table class="table table-hover">
+                <thead>
                     <tr>
-                        <td>@user.Username</td>
-                        <td>@user.Role</td>
-                        <td>
-                            <form asp-action="DeleteUser" method="post" class="d-inline">
-                                <input type="hidden" name="id" value="@user.Id" />
-                                <button type="submit" class="btn btn-danger btn-sm" data-confirm="¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.">Eliminar</button>
-                            </form>
-                            <a asp-action="ResetPassword" asp-route-id="@user.Id" class="btn btn-warning btn-sm ms-1">Reset Password</a>
-                        </td>
+                        <th>Usuario</th>
+                        <th>Rol</th>
+                        <th>Acciones</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.Username</td>
+                            <td>
+                                @if (user.Role == FSP.AttendanceClock.Core.Entities.UserRole.Administrador)
+                                {
+                                    <span class="badge bg-success">Administrador</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Empleado</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Acciones
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a asp-action="ResetPassword" asp-route-id="@user.Id" class="dropdown-item">
+                                                <i class="bi bi-key"></i> Reset contraseña
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form asp-action="DeleteUser" method="post" class="d-inline">
+                                                <input type="hidden" name="id" value="@user.Id" />
+                                                <button type="submit" class="dropdown-item text-danger" data-confirm="¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.">
+                                                    <i class="bi bi-trash"></i> Eliminar
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
     </div>
 </div>
 
