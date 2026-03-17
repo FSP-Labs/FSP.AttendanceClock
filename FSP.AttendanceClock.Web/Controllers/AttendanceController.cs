@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FSP.AttendanceClock.Web.Controllers
 {
     /// <summary>
-    /// Controlador principal para las acciones del empleado (Fichar, Ver historial).
+    /// Main controller for employee attendance actions (Clock In, View history).
     /// </summary>
     [Authorize]
     public class AttendanceController : Controller
@@ -27,13 +27,13 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Muestra el panel de fichajes del usuario actual con el historial del día.
+        /// Displays the attendance panel for the current user with today's history.
         /// </summary>
         public async Task<IActionResult> Index()
         {
             var userId = User.GetCurrentUserId();
             
-            // Obtener fichajes de hoy para el usuario actual
+            // Get today's attendance records for the current user
             var today = DateTime.UtcNow.Date;
             var attendances = await _context.Attendances
                 .Where(a => a.UserId == userId && a.Timestamp.Date == today)
@@ -44,7 +44,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Muestra el historial completo de fichajes del usuario (con filtros opcionales).
+        /// Displays the full attendance history for the user (with optional filters).
         /// </summary>
         public async Task<IActionResult> History(DateTime? from, DateTime? to)
         {
@@ -72,8 +72,8 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Registra una ENTRADA para el usuario actual.
-        /// Valida que no haya una entrada pendiente de cerrar.
+        /// Records a CHECK-IN for the current user.
+        /// Validates that there is no open check-in pending a check-out.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -88,7 +88,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             if (lastRecord != null && lastRecord.Type == AttendanceType.CheckIn)
             {
-                TempData["Error"] = "Ya has fichado entrada. Debes fichar salida primero.";
+                TempData["Error"] = "You have already checked in. You must check out first.";
                 return RedirectToAction(nameof(Index));
             }
             
@@ -107,14 +107,14 @@ namespace FSP.AttendanceClock.Web.Controllers
             var userAgent = Request.Headers["User-Agent"].ToString();
             if (userAgent.Length > 500) userAgent = userAgent[..500];
             await _auditService.LogAsync(userId, username, "Entrada", $"Usuario fichó entrada a las {attendance.Timestamp}", ip, userAgent);
-            TempData["Success"] = "Entrada registrada correctamente.";
+            TempData["Success"] = "Check-in recorded successfully.";
 
             return RedirectToAction(nameof(Index));
         }
 
         /// <summary>
-        /// Registra una SALIDA para el usuario actual.
-        /// Valida que haya una entrada abierta.
+        /// Records a CHECK-OUT for the current user.
+        /// Validates that there is an open check-in.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -129,7 +129,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             if (lastRecord == null || lastRecord.Type == AttendanceType.CheckOut)
             {
-                TempData["Error"] = "No has fichado entrada o ya has fichado salida.";
+                TempData["Error"] = "You have not checked in, or you have already checked out.";
                 return RedirectToAction(nameof(Index));
             }
             
@@ -149,15 +149,15 @@ namespace FSP.AttendanceClock.Web.Controllers
             if (userAgent.Length > 500) userAgent = userAgent[..500];
             await _auditService.LogAsync(userId, username, "Salida", $"Usuario fichó salida a las {attendance.Timestamp}", ip, userAgent);
 
-            TempData["Success"] = "Salida registrada correctamente.";
+            TempData["Success"] = "Check-out recorded successfully.";
 
             return RedirectToAction(nameof(Index));
         }
 
         /// <summary>
-        /// Muestra el formulario para editar un fichaje existente.
+        /// Displays the form to edit an existing attendance record.
         /// </summary>
-        /// <param name="id">ID del fichaje.</param>
+        /// <param name="id">Attendance record ID.</param>
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -175,7 +175,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Procesa la edición de un fichaje, creando un registro de auditoría.
+        /// Processes the edit of an attendance record, creating an audit entry.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -193,7 +193,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             if (newTimestamp > DateTime.UtcNow.AddMinutes(5))
             {
-                ModelState.AddModelError("", "No puedes registrar fichajes en el futuro.");
+                ModelState.AddModelError("", "You cannot record attendance entries in the future.");
                 return View(attendance);
             }
 
@@ -227,7 +227,7 @@ namespace FSP.AttendanceClock.Web.Controllers
             if (userAgent.Length > 500) userAgent = userAgent[..500];
             await _auditService.LogAsync(userId, username, "EdicionFichaje", logDetail, ip, userAgent);
 
-            TempData["Success"] = "Fichaje actualizado y auditado correctamente.";
+            TempData["Success"] = "Attendance record updated and audited successfully.";
             
             if (User.IsInRole("Administrador"))
             {

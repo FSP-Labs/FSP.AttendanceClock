@@ -13,8 +13,8 @@ using Microsoft.Extensions.Options;
 namespace FSP.AttendanceClock.Web.Controllers
 {
     /// <summary>
-    /// Controlador para tareas administrativas (Gestión de usuarios, Reportes, Auditoría).
-    /// Requiere rol de "Administrador".
+    /// Controller for administrative tasks (User management, Reports, Audit).
+    /// Requires the "Administrador" role.
     /// </summary>
     [Authorize(Roles = "Administrador")]
     public class AdminController : Controller
@@ -33,7 +33,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Muestra el reporte general de fichajes con opciones de filtrado.
+        /// Displays the general attendance report with filtering options.
         /// </summary>
         public async Task<IActionResult> Index(DateTime? startDate, DateTime? endDate, int? userId)
         {
@@ -50,7 +50,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             var attendances = await query.OrderByDescending(a => a.Timestamp).ToListAsync();
 
-            // Cargar datos para los filtros de la vista
+            // Load data for the view's filter controls
             ViewBag.Users = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(await _context.Users.OrderBy(u => u.Username).ToListAsync(), "Id", "Username", userId);
             ViewBag.StartDate = startDate?.ToString("yyyy-MM-dd");
             ViewBag.EndDate = endDate?.ToString("yyyy-MM-dd");
@@ -59,7 +59,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Listado de todos los usuarios del sistema.
+        /// Lists all users in the system.
         /// </summary>
         public async Task<IActionResult> Users()
         {
@@ -68,7 +68,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Vista para crear nuevo usuario.
+        /// View for creating a new user.
         /// </summary>
         [HttpGet]
         public IActionResult CreateUser()
@@ -77,7 +77,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Procesa la creación de un nuevo usuario.
+        /// Processes the creation of a new user.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -85,19 +85,19 @@ namespace FSP.AttendanceClock.Web.Controllers
         {
             if (await _context.Users.AnyAsync(u => u.Username == username))
             {
-                ModelState.AddModelError("", "El usuario ya existe.");
+                ModelState.AddModelError("", "The user already exists.");
                 return View();
             }
 
             if (password != confirmPassword)
             {
-                TempData["Error"] = "Las contraseñas no coinciden.";
+                TempData["Error"] = "Passwords do not match.";
                 return RedirectToAction(nameof(CreateUser));
             }
 
             if (string.IsNullOrWhiteSpace(password) || password.Length < 8)
             {
-                TempData["Error"] = "La contraseña debe tener al menos 8 caracteres.";
+                TempData["Error"] = "Password must be at least 8 characters.";
                 return RedirectToAction(nameof(CreateUser));
             }
 
@@ -111,7 +111,7 @@ namespace FSP.AttendanceClock.Web.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
             
-            // Log de auditoría
+            // Audit log
             var adminId = User.GetCurrentUserId();
             var adminName = User.Identity!.Name!;
             var ip = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -123,7 +123,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Elimina un usuario del sistema (Acción irreversible).
+        /// Deletes a user from the system (irreversible action).
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -147,7 +147,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Vista para restablecer contraseña de un usuario.
+        /// View for resetting a user's password.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> ResetPassword(int id)
@@ -158,7 +158,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Procesa el cambio de contraseña de un usuario.
+        /// Processes the password change for a user.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -169,7 +169,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
             {
-                TempData["Error"] = "La contraseña debe tener al menos 8 caracteres.";
+                TempData["Error"] = "Password must be at least 8 characters.";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -183,13 +183,13 @@ namespace FSP.AttendanceClock.Web.Controllers
             if (userAgent.Length > 500) userAgent = userAgent[..500];
             await _auditService.LogAsync(adminId, adminName, "ContrasenaRestablecida", $"Contraseña restablecida para usuario: {user.Username}", ip, userAgent);
             
-            TempData["Success"] = $"Contraseña de {user.Username} restablecida correctamente.";
+            TempData["Success"] = $"Password for {user.Username} has been reset successfully.";
 
             return RedirectToAction(nameof(Users));
         }
 
         /// <summary>
-        /// Muestra el registro completo de auditoría del sistema.
+        /// Displays the complete system audit log.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> AuditLog(int page = 1)
@@ -208,7 +208,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Exporta los fichajes a Excel, aplicando los filtros seleccionados.
+        /// Exports attendance records to Excel, applying the selected filters.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> ExportToExcel(DateTime? startDate, DateTime? endDate, int? userId)
@@ -231,14 +231,14 @@ namespace FSP.AttendanceClock.Web.Controllers
                 var worksheet = workbook.Worksheets.Add("Fichajes");
                 var currentRow = 1;
 
-                // Cabecera
-                worksheet.Cell(currentRow, 1).Value = "ID Empleado";
-                worksheet.Cell(currentRow, 2).Value = "Nombre";
-                worksheet.Cell(currentRow, 3).Value = "Fecha";
-                worksheet.Cell(currentRow, 4).Value = "Hora";
-                worksheet.Cell(currentRow, 5).Value = "Tipo";
-                
-                // Estilo Cabecera
+                // Header
+                worksheet.Cell(currentRow, 1).Value = "Employee ID";
+                worksheet.Cell(currentRow, 2).Value = "Name";
+                worksheet.Cell(currentRow, 3).Value = "Date";
+                worksheet.Cell(currentRow, 4).Value = "Time";
+                worksheet.Cell(currentRow, 5).Value = "Type";
+
+                // Header style
                 var headerRange = worksheet.Range("A1:E1");
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.LightGray;
@@ -267,7 +267,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Exporta el log de auditoría completo a Excel.
+        /// Exports the full audit log to Excel.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> ExportAuditLog()
@@ -281,15 +281,15 @@ namespace FSP.AttendanceClock.Web.Controllers
                 var worksheet = workbook.Worksheets.Add("System Logs");
                 var currentRow = 1;
 
-                // Cabecera
-                worksheet.Cell(currentRow, 1).Value = "Fecha";
-                worksheet.Cell(currentRow, 2).Value = "Usuario (Actor)";
-                worksheet.Cell(currentRow, 3).Value = "Acción";
-                worksheet.Cell(currentRow, 4).Value = "Detalles";
+                // Header
+                worksheet.Cell(currentRow, 1).Value = "Date";
+                worksheet.Cell(currentRow, 2).Value = "User (Actor)";
+                worksheet.Cell(currentRow, 3).Value = "Action";
+                worksheet.Cell(currentRow, 4).Value = "Details";
                 worksheet.Cell(currentRow, 5).Value = "IP";
                 worksheet.Cell(currentRow, 6).Value = "User-Agent";
 
-                // Estilo Cabecera
+                // Header style
                 var headerRange = worksheet.Range("A1:F1");
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.LightGray;
@@ -318,12 +318,12 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Sección: Reporte Horario (panel administrativo)
+        /// Section: Hours Report (admin panel).
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> HoursReport(int? userId, DateTime? startDate, DateTime? endDate)
         {
-            // Preparar lista de usuarios para selector
+            // Prepare user list for the selector
             ViewBag.Users = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(await _context.Users.OrderBy(u => u.Username).ToListAsync(), "Id", "Username");
             
             var start = startDate?.Date ?? DateTime.UtcNow.Date.AddDays(-7);
@@ -337,7 +337,7 @@ namespace FSP.AttendanceClock.Web.Controllers
             double totalOrdinaryHours = 0;
             double totalExtraHours = 0;
 
-            // Si se seleccionó un usuario, obtener sus registros de entrada/salida
+            // If a user was selected, retrieve their check-in/check-out records
             if (userId.HasValue)
             {
                 var user = await _context.Users.FindAsync(userId.Value);
@@ -347,7 +347,7 @@ namespace FSP.AttendanceClock.Web.Controllers
                         .Where(a => a.UserId == userId.Value && a.Timestamp >= start.ToUniversalTime() && a.Timestamp < end.AddDays(1).ToUniversalTime())
                         .ToListAsync();
 
-                    // Agrupar por día: primera entrada y última salida
+                    // Group by day: first check-in and last check-out
                     var dailySummaries = _attendanceReportService.CalculateDailyHours(attendances, _settings.OrdinaryHoursPerDay);
 
                     foreach (var day in dailySummaries)
@@ -378,12 +378,12 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Exporta el reporte horario a Excel.
+        /// Exports the hours report to Excel.
         /// </summary>
         [HttpGet]
         public async Task<IActionResult> ExportHoursReport(int? userId, DateTime? startDate, DateTime? endDate)
         {
-            if (!userId.HasValue) return BadRequest("Se requiere seleccionar un usuario");
+            if (!userId.HasValue) return BadRequest("A user must be selected");
 
             var user = await _context.Users.FindAsync(userId.Value);
             if (user == null) return NotFound();
@@ -395,7 +395,7 @@ namespace FSP.AttendanceClock.Web.Controllers
                 .Where(a => a.UserId == userId.Value && a.Timestamp >= start.ToUniversalTime() && a.Timestamp < end.AddDays(1).ToUniversalTime())
                 .ToListAsync();
 
-            // Agrupar por día
+            // Group by day
             var dailySummaries = _attendanceReportService.CalculateDailyHours(attendances, _settings.OrdinaryHoursPerDay);
 
             using (var workbook = new ClosedXML.Excel.XLWorkbook())
@@ -403,13 +403,13 @@ namespace FSP.AttendanceClock.Web.Controllers
                 var worksheet = workbook.Worksheets.Add("Reporte Horario");
                 var row = 1;
 
-                // Cabecera
-                worksheet.Cell(row, 1).Value = "Fecha";
-                worksheet.Cell(row, 2).Value = "Hora Entrada";
-                worksheet.Cell(row, 3).Value = "Hora Salida";
-                worksheet.Cell(row, 4).Value = "Horas Trabajadas";
-                worksheet.Cell(row, 5).Value = "Horas Ordinarias";
-                worksheet.Cell(row, 6).Value = "Horas Extra";
+                // Header
+                worksheet.Cell(row, 1).Value = "Date";
+                worksheet.Cell(row, 2).Value = "Check-in Time";
+                worksheet.Cell(row, 3).Value = "Check-out Time";
+                worksheet.Cell(row, 4).Value = "Hours Worked";
+                worksheet.Cell(row, 5).Value = "Ordinary Hours";
+                worksheet.Cell(row, 6).Value = "Extra Hours";
                 var header = worksheet.Range("A1:F1");
                 header.Style.Font.Bold = true;
                 header.Style.Fill.BackgroundColor = ClosedXML.Excel.XLColor.LightGray;
@@ -431,9 +431,9 @@ namespace FSP.AttendanceClock.Web.Controllers
                     worksheet.Cell(row, 6).Value = Math.Round(day.ExtraHours.TotalHours, 2);
                 }
 
-                // Totales
+                // Totals
                 row++;
-                worksheet.Cell(row, 1).Value = "Totales";
+                worksheet.Cell(row, 1).Value = "Totals";
                 worksheet.Cell(row, 5).Value = Math.Round(totalOrdinary, 2);
                 worksheet.Cell(row, 6).Value = Math.Round(totalExtra, 2);
                 worksheet.Range($"A{row}:F{row}").Style.Font.Bold = true;

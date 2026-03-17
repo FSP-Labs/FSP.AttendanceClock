@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FSP.AttendanceClock.Web.Controllers
 {
     /// <summary>
-    /// Gestiona la autenticación de usuarios (Login, Logout, Cambio de contraseña).
+    /// Manages user authentication (Login, Logout, Change password).
     /// </summary>
     public class AccountController : Controller
     {
@@ -28,7 +28,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Muestra la vista de inicio de sesión.
+        /// Displays the login view.
         /// </summary>
         [HttpGet]
         public IActionResult Login()
@@ -37,7 +37,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Procesa la solicitud de inicio de sesión con protección contra fuerza bruta.
+        /// Processes the login request with brute-force protection.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -47,17 +47,17 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             var ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault() ?? HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-            // Verificar si la IP está bloqueada
+            // Check if the IP is blocked
             if (_loginAttemptService.IsBlocked(ipAddress))
             {
-                ModelState.AddModelError(string.Empty, "Demasiados intentos fallidos. Intenta de nuevo en 15 minutos.");
+                ModelState.AddModelError(string.Empty, "Too many failed attempts. Please try again in 15 minutes.");
                 return View(model);
             }
 
-            // Buscar usuario en base de datos
+            // Look up user in the database
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == model.Username);
             
-            // Verificar contraseña usando PBKDF2 hash
+            // Verify password using PBKDF2 hash
             if (user == null || !PasswordHasher.Verify(user.PasswordHash, model.Password))
             {
                 _loginAttemptService.RecordFailedAttempt(ipAddress);
@@ -65,19 +65,19 @@ namespace FSP.AttendanceClock.Web.Controllers
                 
                 if (remainingAttempts > 0)
                 {
-                    ModelState.AddModelError(string.Empty, $"Usuario o contraseña inválidos. ({remainingAttempts} intentos restantes)");
+                    ModelState.AddModelError(string.Empty, $"Invalid username or password. ({remainingAttempts} attempts remaining)");
                 }
                 else
                 {
-                    ModelState.AddModelError(string.Empty, "Demasiados intentos fallidos. Intenta de nuevo en 15 minutos.");
+                    ModelState.AddModelError(string.Empty, "Too many failed attempts. Please try again in 15 minutes.");
                 }
                 return View(model);
             }
 
-            // Login exitoso - limpiar intentos fallidos
+            // Successful login — clear failed attempts
             _loginAttemptService.RecordSuccessfulAttempt(ipAddress);
 
-            // Crear identidad del usuario
+            // Build the user identity
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.Username),
@@ -87,14 +87,14 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            // Iniciar sesión con cookie
+            // Sign in with cookie
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
 
             return RedirectToAction("Index", "Home");
         }
 
         /// <summary>
-        /// Cierra la sesión del usuario actual.
+        /// Signs out the current user.
         /// </summary>
         [HttpGet]
         [Authorize]
@@ -105,7 +105,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Muestra el formulario para cambiar la contraseña.
+        /// Displays the change-password form.
         /// </summary>
         [HttpGet]
         [Authorize]
@@ -115,7 +115,7 @@ namespace FSP.AttendanceClock.Web.Controllers
         }
 
         /// <summary>
-        /// Procesa el cambio de contraseña del usuario autenticado.
+        /// Processes the password change for the authenticated user.
         /// </summary>
         [HttpPost]
         [Authorize]
@@ -129,24 +129,24 @@ namespace FSP.AttendanceClock.Web.Controllers
 
             if (user == null)
             {
-                ModelState.AddModelError(string.Empty, "Usuario no encontrado.");
+                ModelState.AddModelError(string.Empty, "User not found.");
                 return View(model);
             }
 
-            // Verificar que la contraseña actual sea correcta
+            // Verify that the current password is correct
             if (!PasswordHasher.Verify(user.PasswordHash, model.CurrentPassword))
             {
-                ModelState.AddModelError(nameof(model.CurrentPassword), "La contraseña actual es incorrecta.");
+                ModelState.AddModelError(nameof(model.CurrentPassword), "The current password is incorrect.");
                 return View(model);
             }
 
-            // Actualizar contraseña
+            // Update password
             user.PasswordHash = PasswordHasher.HashPassword(model.NewPassword);
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = "Contraseña cambiada exitosamente. Por favor inicia sesión de nuevo.";
+            TempData["Success"] = "Password changed successfully. Please sign in again.";
 
-            // Cerrar sesión después de cambiar contraseña
+            // Sign out after password change
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction(nameof(Login));
         }
