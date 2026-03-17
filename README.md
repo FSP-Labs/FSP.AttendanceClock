@@ -1,44 +1,90 @@
 # FSP Attendance Clock
 
-Sistema de control de fichajes (check-in/check-out) para empleados. Desarrollado en ASP.NET Core 9 con PostgreSQL.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/download/dotnet/9)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14%2B-336791)](https://www.postgresql.org/)
+[![Issues](https://img.shields.io/github/issues/FSP-Labs/FSP.AttendanceClock)](https://github.com/FSP-Labs/FSP.AttendanceClock/issues)
 
-## Funcionalidades
+A clean, self-hosted employee attendance system. Employees clock in and out; administrators manage users, view audit logs, and export hour reports.
 
-- **Empleados**: fichar entrada/salida, ver historial, cambiar contraseña
-- **Administradores**: gestión de usuarios, auditoría completa, exportación de informes de horas en Excel
+![FSP Attendance Clock screenshot](docs/screenshot.png)
 
-## Requisitos
+---
 
-- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9)
-- PostgreSQL 14+
+## Features
 
-## Configuración
+| Employees | Administrators |
+|-----------|---------------|
+| Clock in / clock out | Manage users (create, delete, reset password) |
+| View personal attendance history | View all attendance records |
+| Filter records by date range | Full audit log (all system actions) |
+| Edit records with reason + audit trail | Export hours report to Excel |
+| Change password | Configurable ordinary / extra hours threshold |
 
-1. Copia el fichero de ejemplo y rellena tus datos de conexión:
-   ```bash
-   cp FSP.AttendanceClock.Web/appsettings.Example.json FSP.AttendanceClock.Web/appsettings.json
-   ```
+---
 
-2. Edita `FSP.AttendanceClock.Web/appsettings.json` con tu cadena de conexión a PostgreSQL.
+## Tech Stack
 
-3. Aplica las migraciones de base de datos:
-   ```bash
-   dotnet ef database update --project FSP.AttendanceClock.Infrastructure --startup-project FSP.AttendanceClock.Web
-   ```
+- **Backend:** ASP.NET Core 9 MVC, Entity Framework Core 9
+- **Database:** PostgreSQL 14+
+- **Frontend:** Bootstrap 5, Bootstrap Icons
+- **Auth:** Cookie-based authentication, PBKDF2 password hashing
+- **Reports:** ClosedXML (Excel export)
 
-4. Arranca la aplicación:
-   ```bash
-   dotnet run --project FSP.AttendanceClock.Web
-   ```
+---
 
-## Logo personalizado
+## Quick Start
 
-Reemplaza el fichero `FSP.AttendanceClock.Web/wwwroot/img/logo.png` con tu propio logo. El fichero actual es un placeholder blanco (200×50 px).
+**Prerequisites:** [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9) and PostgreSQL 14+.
 
-## Seguridad
+```bash
+# 1. Clone the repo
+git clone https://github.com/FSP-Labs/FSP.AttendanceClock.git
+cd FSP.AttendanceClock
 
-Lee [`SECURITY_REVIEW_X_FORWARDED_FOR.md`](SECURITY_REVIEW_X_FORWARDED_FOR.md) antes de desplegar en producción detrás de un proxy inverso.
+# 2. Configure the connection string
+cp FSP.AttendanceClock.Web/appsettings.Example.json FSP.AttendanceClock.Web/appsettings.json
+# Edit appsettings.json and set your PostgreSQL connection string
 
-## Licencia
+# 3. Apply database migrations
+dotnet ef database update \
+  --project FSP.AttendanceClock.Infrastructure \
+  --startup-project FSP.AttendanceClock.Web
 
-MIT
+# 4. Run the app
+dotnet run --project FSP.AttendanceClock.Web
+```
+
+The app starts at `https://localhost:7294`. Default admin credentials are set via `appsettings.json` (`AdminSettings:InitialPassword`) — the seeder creates an `admin` user on first run.
+
+> **Note:** Read [`SECURITY_REVIEW_X_FORWARDED_FOR.md`](SECURITY_REVIEW_X_FORWARDED_FOR.md) before deploying behind a reverse proxy.
+
+---
+
+## Architecture
+
+Three-layer clean architecture across three projects:
+
+- **`FSP.AttendanceClock.Core`** — Domain entities (`User`, `Attendance`, `SystemLog`) and interfaces. No dependencies.
+- **`FSP.AttendanceClock.Infrastructure`** — EF Core `AppDbContext`, migrations, `AuditService`, `LoginAttemptService` (brute-force protection), `PasswordHasher` (PBKDF2), `AttendanceReportService`.
+- **`FSP.AttendanceClock.Web`** — ASP.NET Core MVC: controllers, Razor views, ViewModels, middleware, and configuration.
+
+Database tables: `Usuarios`, `Fichajes`, `AuditoriasFichajes`, `RegistrosSistema`.
+
+---
+
+## Custom Logo
+
+Replace `FSP.AttendanceClock.Web/wwwroot/img/logo.png` with your own logo. The current file is a white placeholder (200×50 px).
+
+---
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Looking for a place to start? Check the [good first issues](https://github.com/FSP-Labs/FSP.AttendanceClock/issues?q=is%3Aopen+label%3A%22good+first+issue%22).
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
