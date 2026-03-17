@@ -47,6 +47,15 @@ namespace FSP.AttendanceClock.Infrastructure.Data
             {
                 entity.ToTable("RegistrosSistema");
             });
+
+            modelBuilder.Entity<Attendance>()
+                .HasIndex(a => a.UserId);
+            modelBuilder.Entity<Attendance>()
+                .HasIndex(a => a.Timestamp);
+            modelBuilder.Entity<SystemLog>()
+                .HasIndex(l => l.Timestamp);
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username).IsUnique();
         }
     }
 }
