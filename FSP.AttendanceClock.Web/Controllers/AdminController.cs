@@ -192,12 +192,18 @@ namespace FSP.AttendanceClock.Web.Controllers
         /// Muestra el registro completo de auditoría del sistema.
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> AuditLog()
+        public async Task<IActionResult> AuditLog(int page = 1)
         {
+            const int PageSize = 50;
+            var totalCount = await _context.SystemLogs.CountAsync();
             var logs = await _context.SystemLogs
                 .OrderByDescending(l => l.Timestamp)
+                .Skip((page - 1) * PageSize)
+                .Take(PageSize)
                 .ToListAsync();
 
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = (int)Math.Ceiling(totalCount / (double)PageSize);
             return View(logs);
         }
 

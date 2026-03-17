@@ -54,5 +54,24 @@
                 }
             </tbody>
         </table>
+        @if (ViewBag.TotalPages > 1)
+        {
+            <nav aria-label="Paginación del log">
+                <ul class="pagination justify-content-center mt-3">
+                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-action="AuditLog" asp-route-page="@(ViewBag.CurrentPage - 1)">Anterior</a>
+                    </li>
+                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-action="AuditLog" asp-route-page="@i">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-action="AuditLog" asp-route-page="@(ViewBag.CurrentPage + 1)">Siguiente</a>
+                    </li>
+                </ul>
+            </nav>
+        }
     </div>
 </div>
