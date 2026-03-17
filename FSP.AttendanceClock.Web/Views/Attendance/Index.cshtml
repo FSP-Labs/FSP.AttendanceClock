@@ -3,12 +3,12 @@
 @using FSP.AttendanceClock.Core.Entities
 
 @{
-    ViewData["Title"] = "Mi Panel";
+    ViewData["Title"] = "My Dashboard";
 
-    var lastRecord = Model.FirstOrDefault(); // ya viene ordenado descendente
+    var lastRecord = Model.FirstOrDefault(); // already sorted descending
     bool hasOpenCheckIn = lastRecord?.Type == AttendanceType.CheckIn;
 
-    // Calcular horas trabajadas hoy: sumar pares CheckIn-CheckOut
+    // Calculate hours worked today: sum CheckIn-CheckOut pairs
     var orderedRecords = Model.OrderBy(a => a.Timestamp).ToList();
     TimeSpan totalWorked = TimeSpan.Zero;
     DateTime? openCheckIn = null;
@@ -28,21 +28,21 @@
 
     <div class="action-card mb-5 text-center p-5 glass-effect rounded">
         <div id="reloj-actual" class="display-4 fw-bold text-center mb-3" style="font-variant-numeric: tabular-nums; letter-spacing: 2px;"></div>
-        <h1 class="mb-4">Registro de Fichaje</h1>
-        <p class="text-muted mb-4">Registra tu hora de entrada o salida actual.</p>
+        <h1 class="mb-4">Clock In / Clock Out</h1>
+        <p class="text-muted mb-4">Record your check-in or check-out time.</p>
         <div class="d-flex justify-content-center gap-3">
             <form asp-action="CheckIn" method="post">
                 <button type="submit"
                         class="btn @(hasOpenCheckIn ? "btn-outline-success" : "btn-success") btn-lg px-5 py-3 fw-bold shadow-sm"
                         @(hasOpenCheckIn ? "disabled" : "")>
-                    <i class="bi bi-box-arrow-in-right"></i> ENTRADA
+                    <i class="bi bi-box-arrow-in-right"></i> CHECK IN
                 </button>
             </form>
             <form asp-action="CheckOut" method="post">
                 <button type="submit"
                         class="btn @(!hasOpenCheckIn ? "btn-outline-danger" : "btn-danger") btn-lg px-5 py-3 fw-bold shadow-sm"
                         @(!hasOpenCheckIn ? "disabled" : "")>
-                    <i class="bi bi-box-arrow-left"></i> SALIDA
+                    <i class="bi bi-box-arrow-left"></i> CHECK OUT
                 </button>
             </form>
         </div>
@@ -50,12 +50,12 @@
         <div class="row text-center mb-4 mt-3">
             <div class="col">
                 <div class="p-3 glass-effect rounded">
-                    <div class="text-muted small mb-1">Horas trabajadas hoy</div>
+                    <div class="text-muted small mb-1">Hours worked today</div>
                     <div class="fw-bold fs-5">
                         @if (totalWorked.TotalMinutes > 0 || openCheckIn != null)
                         {
                             @($"{(int)totalWorked.TotalHours:D2}:{totalWorked.Minutes:D2}")
-                            if (openCheckIn != null) { <span class="badge bg-warning text-dark ms-2 small">En curso</span> }
+                            if (openCheckIn != null) { <span class="badge bg-warning text-dark ms-2 small">In progress</span> }
                         }
                         else
                         {
@@ -68,14 +68,14 @@
     </div>
 
     <div class="history-section">
-        <h3 class="mb-3 border-bottom pb-2">Historial de Hoy</h3>
+        <h3 class="mb-3 border-bottom pb-2">Today's History</h3>
         <div class="table-responsive glass-effect p-3 rounded">
             <table class="table table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th>Hora</th>
-                        <th>Tipo</th>
-                        <th>Acciones</th>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -86,16 +86,16 @@
                             <td>
                                 @if (item.Type == AttendanceType.CheckIn)
                                 {
-                                    <span class="badge bg-success rounded-pill px-3">ENTRADA</span>
+                                    <span class="badge bg-success rounded-pill px-3">CHECK IN</span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger rounded-pill px-3">SALIDA</span>
+                                    <span class="badge bg-danger rounded-pill px-3">CHECK OUT</span>
                                 }
                             </td>
                             <td>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
-                                    <i class="bi bi-pencil"></i> Editar
+                                    <i class="bi bi-pencil"></i> Edit
                                 </a>
                             </td>
                         </tr>
@@ -104,7 +104,7 @@
             </table>
             @if (!Model.Any())
             {
-                <p class="text-center text-muted mt-3">No hay registros para hoy.</p>
+                <p class="text-center text-muted mt-3">No records for today.</p>
             }
         </div>
     </div>
@@ -112,7 +112,7 @@
 
 @section Scripts {
     <script>
-        // Reloj en tiempo real
+        // Live clock
         function actualizarReloj() {
             var ahora = new Date();
             var hh = String(ahora.getHours()).padStart(2, '0');
@@ -124,14 +124,14 @@
         actualizarReloj();
         setInterval(actualizarReloj, 1000);
 
-        // Anti-doble-click
+        // Prevent double-click
         document.querySelectorAll('form[action*="CheckIn"], form[action*="CheckOut"]')
             .forEach(function (form) {
                 form.addEventListener('submit', function () {
                     var btn = this.querySelector('button[type="submit"]');
                     if (btn) {
                         btn.disabled = true;
-                        btn.textContent = 'Procesando...';
+                        btn.textContent = 'Processing...';
                     }
                 });
             });
