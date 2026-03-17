@@ -1,28 +1,28 @@
 @model IEnumerable<FSP.AttendanceClock.Core.Entities.SystemLog>
 
 @{
-    ViewData["Title"] = "Auditoría Universal";
+    ViewData["Title"] = "Universal Audit Log";
 }
 
 <div class="dashboard-container" style="max-width: 1200px;">
     <div class="sticky-top pt-2 pb-2 mb-3" style="z-index:100; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px);">
-        <a asp-action="ExportAuditLog" class="btn btn-warning"><i class="bi bi-file-earmark-spreadsheet"></i> Exportar Auditoría</a>
-        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Volver</a>
+        <a asp-action="ExportAuditLog" class="btn btn-warning"><i class="bi bi-file-earmark-spreadsheet"></i> Export Audit Log</a>
+        <a asp-action="Index" class="btn btn-outline-secondary ms-2">Back</a>
     </div>
 
     <div class="header glass-effect mb-4 p-4 rounded">
-        <h1>Auditoría Completa</h1>
-        <p class="text-muted">Registro de todas las acciones del sistema (Fichajes, Ediciones, Usuarios)</p>
+        <h1>Full Audit Log</h1>
+        <p class="text-muted">Record of all system actions (Attendance, Edits, Users)</p>
     </div>
 
     <div class="glass-effect p-4 rounded">
         <table class="table table-hover table-bordered">
             <thead class="table-light">
                 <tr>
-                    <th>Fecha</th>
-                    <th>Usuario (Actor)</th>
-                    <th>Acción</th>
-                    <th>Detalles</th>
+                    <th>Date</th>
+                    <th>User (Actor)</th>
+                    <th>Action</th>
+                    <th>Details</th>
                     <th class="d-none d-md-table-cell">IP</th>
                     <th class="d-none d-lg-table-cell">User-Agent</th>
                 </tr>
@@ -41,10 +41,10 @@
                         <td>@spanishTime.ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@log.Username</td>
                         <td>
-                            @if(log.Action.Contains("CheckIn") || log.Action.Contains("Entrada")) { <span class="badge bg-success">Entrada</span> }
-                            else if(log.Action.Contains("CheckOut") || log.Action.Contains("Salida")) { <span class="badge bg-danger">Salida</span> }
-                            else if(log.Action.Contains("Edit") || log.Action.Contains("Edicion") || log.Action.Contains("EdicionFichaje") ) { <span class="badge bg-warning text-dark">Edición</span> }
-                            else if(log.Action.Contains("User") || log.Action.Contains("Usuario")) { <span class="badge bg-info text-dark">Usuario</span> }
+                            @if(log.Action.Contains("CheckIn") || log.Action.Contains("Entrada")) { <span class="badge bg-success">Check In</span> }
+                            else if(log.Action.Contains("CheckOut") || log.Action.Contains("Salida")) { <span class="badge bg-danger">Check Out</span> }
+                            else if(log.Action.Contains("Edit") || log.Action.Contains("Edicion") || log.Action.Contains("EdicionFichaje") ) { <span class="badge bg-warning text-dark">Edit</span> }
+                            else if(log.Action.Contains("User") || log.Action.Contains("Usuario")) { <span class="badge bg-info text-dark">User</span> }
                             else { <span class="badge bg-secondary">@log.Action</span> }
                         </td>
                         <td>@log.Details</td>
@@ -63,7 +63,7 @@
             <nav aria-label="Paginación del log">
                 <ul class="pagination justify-content-center mt-3">
                     <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                        <a class="page-link" asp-action="AuditLog" asp-route-page="@(ViewBag.CurrentPage - 1)">Anterior</a>
+                        <a class="page-link" asp-action="AuditLog" asp-route-page="@(ViewBag.CurrentPage - 1)">Previous</a>
                     </li>
                     @for (int i = 1; i <= ViewBag.TotalPages; i++)
                     {
@@ -72,7 +72,7 @@
                         </li>
                     }
                     <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                        <a class="page-link" asp-action="AuditLog" asp-route-page="@(ViewBag.CurrentPage + 1)">Siguiente</a>
+                        <a class="page-link" asp-action="AuditLog" asp-route-page="@(ViewBag.CurrentPage + 1)">Next</a>
                     </li>
                 </ul>
             </nav>
