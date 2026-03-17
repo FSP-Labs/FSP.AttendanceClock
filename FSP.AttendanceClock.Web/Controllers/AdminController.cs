@@ -252,7 +252,7 @@ namespace FSP.AttendanceClock.Web.Controllers
                     worksheet.Cell(currentRow, 2).Value = item.User.Username;
                     worksheet.Cell(currentRow, 3).Value = localTime.ToShortDateString();
                     worksheet.Cell(currentRow, 4).Value = localTime.ToShortTimeString();
-                    worksheet.Cell(currentRow, 5).Value = item.Type == AttendanceType.CheckIn ? "Entrada" : "Salida";
+                    worksheet.Cell(currentRow, 5).Value = item.Type == AttendanceType.CheckIn ? "Check In" : "Check Out";
                 }
 
                 worksheet.Columns().AdjustToContents();

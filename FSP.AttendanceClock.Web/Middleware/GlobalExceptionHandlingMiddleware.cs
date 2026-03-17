@@ -28,7 +28,7 @@ namespace FSP.AttendanceClock.Web.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Se produjo una excepción no controlada: {ExceptionMessage}", ex.Message);
+                _logger.LogError(ex, "An unhandled exception occurred: {ExceptionMessage}", ex.Message);
                 await HandleExceptionAsync(context, ex);
             }
         }
