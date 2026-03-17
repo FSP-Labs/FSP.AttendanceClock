@@ -1,18 +1,18 @@
 ﻿@{
-    ViewData["Title"] = "Inicio";
+    ViewData["Title"] = "Home";
 }
 
 <div class="text-center mt-5">
-    <h1 class="display-4 fw-bold text-primary">Bienvenido a FSP Attendance Clock</h1>
-    
+    <h1 class="display-4 fw-bold text-primary">Welcome to FSP Attendance Clock</h1>
+
     <div class="mt-4">
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <a asp-controller="Attendance" asp-action="Index" class="btn btn-success btn-lg px-5">Ir a Mi Panel</a>
+            <a asp-controller="Attendance" asp-action="Index" class="btn btn-success btn-lg px-5">Go to My Panel</a>
         }
         else
         {
-            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-5">Iniciar Sesión</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-5">Sign In</a>
         }
     </div>
 </div>

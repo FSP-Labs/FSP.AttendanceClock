@@ -4,19 +4,19 @@ namespace FSP.AttendanceClock.Web.Models
 {
     public class ChangePasswordViewModel
     {
-        [Required(ErrorMessage = "La contraseña actual es requerida.")]
+        [Required(ErrorMessage = "Current password is required.")]
         [DataType(DataType.Password)]
         public string CurrentPassword { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La nueva contraseña es requerida.")]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
-        [MinLength(8, ErrorMessage = "La contraseña debe tener al menos 8 caracteres.")]
+        [Required(ErrorMessage = "New password is required.")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "Password must be at least 8 characters.")]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters.")]
         [DataType(DataType.Password)]
         public string NewPassword { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La confirmación de contraseña es requerida.")]
+        [Required(ErrorMessage = "Password confirmation is required.")]
         [DataType(DataType.Password)]
-        [Compare("NewPassword", ErrorMessage = "Las contraseñas no coinciden.")]
+        [Compare("NewPassword", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
     }
 }
