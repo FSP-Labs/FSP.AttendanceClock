@@ -1,12 +1,12 @@
 @model FSP.AttendanceClock.Core.Entities.Attendance
 
 @{
-    ViewData["Title"] = "Editar Fichaje";
+    ViewData["Title"] = "Edit Record";
 }
 
 <div class="card glass-effect" style="max-width: 600px; margin: auto;">
     <div class="card-header">
-        <h2>Editar Fichaje</h2>
+        <h2>Edit Attendance Record</h2>
     </div>
     <div class="card-body">
         <form asp-action="Edit" method="post">
@@ -15,24 +15,24 @@
             <div asp-validation-summary="All" class="text-danger"></div>
 
             <div class="mb-3">
-                <label class="form-label">Hora actual registrada</label>
+                <label class="form-label">Current recorded time</label>
                 <input type="text" class="form-control" value="@Model.Timestamp.ToLocalTime().ToString("g")" disabled />
             </div>
 
             <div class="mb-3">
-                <label for="newTimestamp" class="form-label">Nueva Hora</label>
+                <label for="newTimestamp" class="form-label">New Time</label>
                 <input type="datetime-local" name="newTimestamp" class="form-control" value="@Model.Timestamp.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")" required />
             </div>
 
             <div class="mb-3">
-                <label for="reason" class="form-label">Motivo de la corrección</label>
-                <textarea name="reason" class="form-control" rows="3" required placeholder="Por favor explica por qué cambias la hora..."></textarea>
-                <small class="text-muted">Es obligatorio indicar un motivo.</small>
+                <label for="reason" class="form-label">Reason for correction</label>
+                <textarea name="reason" class="form-control" rows="3" required placeholder="Please explain why you are changing this time..."></textarea>
+                <small class="text-muted">A reason is required.</small>
             </div>
 
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-warning">Guardar Cambios</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-warning">Save Changes</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
             </div>
         </form>
     </div>

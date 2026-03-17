@@ -4,27 +4,27 @@
 @using FSP.AttendanceClock.Core.Entities
 
 @{
-    ViewData["Title"] = "Historial Completo";
+    ViewData["Title"] = "Full History";
 }
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Historial de Fichajes</h2>
-        <a asp-action="Index" class="btn btn-secondary">Volver al Panel</a>
+        <h2>Attendance History</h2>
+        <a asp-action="Index" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 
     <form method="get" class="row g-2 mb-3">
         <div class="col-auto">
-            <label class="form-label">Desde</label>
+            <label class="form-label">From</label>
             <input type="datetime-local" name="from" class="form-control" value="@(ViewData["From"] ?? "")" />
         </div>
         <div class="col-auto">
-            <label class="form-label">Hasta</label>
+            <label class="form-label">To</label>
             <input type="datetime-local" name="to" class="form-control" value="@(ViewData["To"] ?? "")" />
         </div>
         <div class="col-auto align-self-end">
-            <button type="submit" class="btn btn-primary">Filtrar</button>
-            <a asp-action="History" class="btn btn-outline-secondary">Limpiar</a>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a asp-action="History" class="btn btn-outline-secondary">Clear</a>
         </div>
     </form>
 
@@ -32,9 +32,9 @@
         <table class="table table-hover align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>Fecha y Hora</th>
-                    <th>Tipo</th>
-                    <th>Acciones</th>
+                    <th>Date and Time</th>
+                    <th>Type</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -45,16 +45,16 @@
                         <td>
                             @if (item.Type == AttendanceType.CheckIn)
                             {
-                                <span class="badge bg-success rounded-pill px-3">ENTRADA</span>
+                                <span class="badge bg-success rounded-pill px-3">CHECK IN</span>
                             }
                             else
                             {
-                                <span class="badge bg-danger rounded-pill px-3">SALIDA</span>
+                                <span class="badge bg-danger rounded-pill px-3">CHECK OUT</span>
                             }
                         </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning">
-                                <i class="bi bi-pencil"></i> Editar
+                                <i class="bi bi-pencil"></i> Edit
                             </a>
                         </td>
                     </tr>
@@ -63,7 +63,7 @@
         </table>
         @if (!Model.Any())
         {
-            <p class="text-center text-muted mt-3">No hay registros para los filtros seleccionados.</p>
+            <p class="text-center text-muted mt-3">No records found for the selected filters.</p>
         }
     </div>
 </div>
