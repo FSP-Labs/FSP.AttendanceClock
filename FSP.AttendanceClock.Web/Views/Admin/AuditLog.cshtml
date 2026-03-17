@@ -38,7 +38,7 @@
                     var spanishZone = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
                     var spanishTime = TimeZoneInfo.ConvertTimeFromUtc(log.Timestamp, spanishZone);
                     <tr class="@rowClass">
-                        <td>@spanishTime.ToString("g")</td>
+                        <td>@spanishTime.ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@log.Username</td>
                         <td>
                             @if(log.Action.Contains("CheckIn") || log.Action.Contains("Entrada")) { <span class="badge bg-success">Entrada</span> }

@@ -357,7 +357,7 @@ namespace FSP.AttendanceClock.Web.Controllers
 
                         attendanceRecords.Add(new
                         {
-                            Date = day.Date.ToShortDateString(),
+                            Date = day.Date.ToString("dd/MM/yyyy"),
                             CheckInTime = day.CheckInTime?.ToString("HH:mm") ?? "-",
                             CheckOutTime = day.CheckOutTime?.ToString("HH:mm") ?? "-",
                             WorkedHours = day.WorkedHours,

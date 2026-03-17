@@ -41,7 +41,7 @@
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="fw-bold">@item.Timestamp.ToLocalTime().ToString("g")</td>
+                        <td class="fw-bold">@item.Timestamp.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                         <td>
                             @if (item.Type == AttendanceType.CheckIn)
                             {
