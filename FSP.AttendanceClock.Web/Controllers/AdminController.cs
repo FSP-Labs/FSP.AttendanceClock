@@ -21,12 +21,14 @@ namespace FSP.AttendanceClock.Web.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IAuditService _auditService;
+        private readonly IAttendanceReportService _attendanceReportService;
         private readonly AttendanceClockSettings _settings;
 
-        public AdminController(AppDbContext context, IAuditService auditService, IOptions<AttendanceClockSettings> settings)
+        public AdminController(AppDbContext context, IAuditService auditService, IAttendanceReportService attendanceReportService, IOptions<AttendanceClockSettings> settings)
         {
             _context = context;
             _auditService = auditService;
+            _attendanceReportService = attendanceReportService;
             _settings = settings.Value;
         }
 
@@ -341,46 +343,21 @@ namespace FSP.AttendanceClock.Web.Controllers
                         .ToListAsync();
 
                     // Agrupar por día: primera entrada y última salida
-                    var groupedByDay = attendances
-                        .GroupBy(a => a.Timestamp.ToLocalTime().Date)
-                        .Select(g => new
-                        {
-                            Date = g.Key,
-                            FirstCheckIn = g.Where(a => a.Type == Core.Entities.AttendanceType.CheckIn).FirstOrDefault(),
-                            LastCheckOut = g.Where(a => a.Type == Core.Entities.AttendanceType.CheckOut).LastOrDefault()
-                        })
-                        .ToList();
+                    var dailySummaries = _attendanceReportService.CalculateDailyHours(attendances, _settings.OrdinaryHoursPerDay);
 
-                    foreach (var day in groupedByDay)
+                    foreach (var day in dailySummaries)
                     {
-                        var checkInLocal = day.FirstCheckIn?.Timestamp.ToLocalTime();
-                        var checkOutLocal = day.LastCheckOut?.Timestamp.ToLocalTime();
-
-                        TimeSpan worked = TimeSpan.Zero;
-                        if (checkInLocal.HasValue && checkOutLocal.HasValue && checkOutLocal > checkInLocal)
-                        {
-                            worked = checkOutLocal.Value - checkInLocal.Value;
-                        }
-
-                        var ordinaryThreshold = TimeSpan.FromHours(_settings.OrdinaryHoursPerDay);
-                        var ordinary = worked > ordinaryThreshold
-                            ? ordinaryThreshold
-                            : worked;
-                        var extra = worked > ordinaryThreshold
-                            ? worked - ordinaryThreshold
-                            : TimeSpan.Zero;
-
-                        totalOrdinaryHours += ordinary.TotalHours;
-                        totalExtraHours += extra.TotalHours;
+                        totalOrdinaryHours += day.OrdinaryHours.TotalHours;
+                        totalExtraHours += day.ExtraHours.TotalHours;
 
                         attendanceRecords.Add(new
                         {
                             Date = day.Date.ToShortDateString(),
-                            CheckInTime = checkInLocal?.ToString("HH:mm") ?? "-",
-                            CheckOutTime = checkOutLocal?.ToString("HH:mm") ?? "-",
-                            WorkedHours = worked,
-                            OrdinaryHours = ordinary,
-                            ExtraHours = extra
+                            CheckInTime = day.CheckInTime?.ToString("HH:mm") ?? "-",
+                            CheckOutTime = day.CheckOutTime?.ToString("HH:mm") ?? "-",
+                            WorkedHours = day.WorkedHours,
+                            OrdinaryHours = day.OrdinaryHours,
+                            ExtraHours = day.ExtraHours
                         });
                     }
                     
@@ -415,15 +392,7 @@ namespace FSP.AttendanceClock.Web.Controllers
                 .ToListAsync();
 
             // Agrupar por día
-            var groupedByDay = attendances
-                .GroupBy(a => a.Timestamp.ToLocalTime().Date)
-                .Select(g => new
-                {
-                    Date = g.Key,
-                    FirstCheckIn = g.Where(a => a.Type == Core.Entities.AttendanceType.CheckIn).FirstOrDefault(),
-                    LastCheckOut = g.Where(a => a.Type == Core.Entities.AttendanceType.CheckOut).LastOrDefault()
-                })
-                .ToList();
+            var dailySummaries = _attendanceReportService.CalculateDailyHours(attendances, _settings.OrdinaryHoursPerDay);
 
             using (var workbook = new ClosedXML.Excel.XLWorkbook())
             {
@@ -444,35 +413,18 @@ namespace FSP.AttendanceClock.Web.Controllers
                 double totalOrdinary = 0;
                 double totalExtra = 0;
 
-                foreach (var day in groupedByDay)
+                foreach (var day in dailySummaries)
                 {
                     row++;
-                    var checkInLocal = day.FirstCheckIn?.Timestamp.ToLocalTime();
-                    var checkOutLocal = day.LastCheckOut?.Timestamp.ToLocalTime();
-
-                    TimeSpan worked = TimeSpan.Zero;
-                    if (checkInLocal.HasValue && checkOutLocal.HasValue && checkOutLocal > checkInLocal)
-                    {
-                        worked = checkOutLocal.Value - checkInLocal.Value;
-                    }
-
-                    var ordinaryThreshold = TimeSpan.FromHours(_settings.OrdinaryHoursPerDay);
-                    var ordinary = worked > ordinaryThreshold
-                        ? ordinaryThreshold
-                        : worked;
-                    var extra = worked > ordinaryThreshold
-                        ? worked - ordinaryThreshold
-                        : TimeSpan.Zero;
-
-                    totalOrdinary += ordinary.TotalHours;
-                    totalExtra += extra.TotalHours;
+                    totalOrdinary += day.OrdinaryHours.TotalHours;
+                    totalExtra += day.ExtraHours.TotalHours;
 
                     worksheet.Cell(row, 1).Value = day.Date.ToShortDateString();
-                    worksheet.Cell(row, 2).Value = checkInLocal?.ToString("HH:mm") ?? "-";
-                    worksheet.Cell(row, 3).Value = checkOutLocal?.ToString("HH:mm") ?? "-";
-                    worksheet.Cell(row, 4).Value = Math.Round(worked.TotalHours, 2);
-                    worksheet.Cell(row, 5).Value = Math.Round(ordinary.TotalHours, 2);
-                    worksheet.Cell(row, 6).Value = Math.Round(extra.TotalHours, 2);
+                    worksheet.Cell(row, 2).Value = day.CheckInTime?.ToString("HH:mm") ?? "-";
+                    worksheet.Cell(row, 3).Value = day.CheckOutTime?.ToString("HH:mm") ?? "-";
+                    worksheet.Cell(row, 4).Value = Math.Round(day.WorkedHours.TotalHours, 2);
+                    worksheet.Cell(row, 5).Value = Math.Round(day.OrdinaryHours.TotalHours, 2);
+                    worksheet.Cell(row, 6).Value = Math.Round(day.ExtraHours.TotalHours, 2);
                 }
 
                 // Totales

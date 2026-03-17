@@ -18,6 +18,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IAuditService, AuditService>();
+builder.Services.AddScoped<IAttendanceReportService, AttendanceReportService>();
 builder.Services.AddSingleton<ILoginAttemptService>(sp => {
     var settings = sp.GetRequiredService<IOptions<AttendanceClockSettings>>().Value;
     return new LoginAttemptService(settings.MaxLoginAttempts, settings.LockoutDurationMinutes);
