@@ -16,3 +16,6 @@ obj/
 
 ## Claude Code context file (local dev only)
 CLAUDE.md
+
+## Implementation plans (local dev only — not for public repo)
+docs/plans/
